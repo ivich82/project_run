@@ -15,7 +15,7 @@ def company_details(request):
                'contacts': settings.CONTACTS}
     return Response(details)
 
-class RunViewSet(viewsets.ModelViewSet):
+class RunViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Run.objects.all()
     serializer_class = RunSerializer
 
