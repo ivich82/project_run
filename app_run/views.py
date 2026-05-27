@@ -6,7 +6,9 @@ from .models import Run
 from .serializer import RunSerializer, UserSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
-
+from rest_framework.views import APIView
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 @api_view(['GET'])
 def company_details(request):
@@ -33,3 +35,28 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         elif type == 'athlete':
             qs = qs.filter(is_staff=False)
         return qs
+
+
+class StartAPIView(APIView):
+
+    # def get(self, request, id):
+    #     run = get_object_or_404(Run, id=id)
+    #     serializer = RunSerializer(run)
+    #     return Response(serializer.data.get("status"))
+
+    def post(self, request, id):
+        run = get_object_or_404(Run, id=id)
+        if run.status == 'init':
+            data = {'status': 'in_progress'}
+            return Response(data)
+        return Response()
+
+
+class StopAPIView(APIView):
+    def post(self, request, id):
+        run = get_object_or_404(Run, id=id)
+        if run.status == 'in_progress':
+            return Response({'status': 'finished'})
+        return Response()
+
+
