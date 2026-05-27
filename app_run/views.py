@@ -48,6 +48,7 @@ class StartAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'init':
             run.status = 'in_progress'
+            run.save()
             data = {'status': 'in_progress'}
             return Response(data)
         return Response()
@@ -58,6 +59,7 @@ class StopAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
             run.status = 'finished'
+            run.save()
             return Response({'status': 'finished'})
         return Response()
 
