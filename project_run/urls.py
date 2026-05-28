@@ -27,7 +27,6 @@ router.register('api/runs', RunViewSet)
 router.register('api/users', UserViewSet)
 
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/company_details/',company_details),

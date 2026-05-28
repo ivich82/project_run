@@ -21,6 +21,9 @@ def company_details(request):
                'contacts': settings.CONTACTS}
     return Response(details)
 
+class RunPagination(PageNumberPagination):
+    page_size_query_param = 'size'
+    max_page_size = 50
 
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.select_related('athlete').all()
@@ -28,16 +31,17 @@ class RunViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['status', 'athlete']
     ordering_fields = ['created_at']
-    # ordering = ['id']
+    pagination_class = RunPagination
 
-class RunPagination(PageNumberPagination):
-    page_size_query_param = 'size'
-    max_page_size = 50
 
 class RunListView(ListAPIView):
     queryset = Run.objects.select_related('athlete').all()
     serializer_class = RunSerializer
     pagination_class = RunPagination
+
+class UserPagination(PageNumberPagination):
+    page_size_query_param = 'size'
+    max_page_size = 50
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_superuser=False)
@@ -45,6 +49,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
     ordering_fields = ['date_joined']
+    pagination_class = UserPagination
 
     def get_queryset(self):
         qs = self.queryset
@@ -55,10 +60,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=False)
         return qs
 
-
-class UserPagination(PageNumberPagination):
-    page_size_query_param = 'size'
-    max_page_size = 50
 
 class UserListView(ListAPIView):
     queryset = User.objects.filter(is_superuser=False)
