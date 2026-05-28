@@ -1,7 +1,11 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
 from .models import Run
 from .serializer import RunSerializer, UserSerializer
 from django.contrib.auth.models import User
@@ -17,15 +21,30 @@ def company_details(request):
                'contacts': settings.CONTACTS}
     return Response(details)
 
+
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.select_related('athlete').all()
     serializer_class = RunSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['status', 'athlete']
+    ordering_fields = ['created_at']
+    # ordering = ['id']
+
+class RunPagination(PageNumberPagination):
+    page_size_query_param = 'size'
+    max_page_size = 50
+
+class RunListView(ListAPIView):
+    queryset = Run.objects.select_related('athlete').all()
+    serializer_class = RunSerializer
+    pagination_class = RunPagination
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
+    ordering_fields = ['date_joined']
 
     def get_queryset(self):
         qs = self.queryset
@@ -37,12 +56,16 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
-class StartAPIView(APIView):
+class UserPagination(PageNumberPagination):
+    page_size_query_param = 'size'
+    max_page_size = 50
 
-    # def get(self, request, id):
-    #     run = get_object_or_404(Run, id=id)
-    #     serializer = RunSerializer(run)
-    #     return Response(serializer.data.get("status"))
+class UserListView(ListAPIView):
+    queryset = User.objects.filter(is_superuser=False)
+    serializer_class = UserSerializer
+    pagination_class = UserPagination
+
+class StartAPIView(APIView):
 
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
@@ -62,5 +85,6 @@ class StopAPIView(APIView):
             run.save()
             return Response({'status': 'finished'})
         return Response(status=400)
+
 
 
