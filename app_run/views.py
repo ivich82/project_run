@@ -56,7 +56,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class StartAPIView(APIView):
-
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
         if run.status == 'init':

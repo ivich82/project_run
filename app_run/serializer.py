@@ -31,5 +31,5 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_runs_finished(self,obj):
 
-        runs_finished = Run.objects.filter(status='finished')
+        run_finished = Run.objects.filter(status='finished')
         return f'{runs_finished.filter(athlete__id = obj.id).count()}'
