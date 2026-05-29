@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import ListAPIView
 from .models import Run
 from .serializer import RunSerializer, UserSerializer
 from django.contrib.auth.models import User
@@ -34,11 +33,6 @@ class RunViewSet(viewsets.ModelViewSet):
     pagination_class = RunPagination
 
 
-class RunListView(ListAPIView):
-    queryset = Run.objects.select_related('athlete').all()
-    serializer_class = RunSerializer
-    pagination_class = RunPagination
-
 class UserPagination(PageNumberPagination):
     page_size_query_param = 'size'
     max_page_size = 50
@@ -61,11 +55,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
-class UserListView(ListAPIView):
-    queryset = User.objects.filter(is_superuser=False)
-    serializer_class = UserSerializer
-    pagination_class = UserPagination
-
 class StartAPIView(APIView):
 
     def post(self, request, id):
@@ -86,6 +75,3 @@ class StopAPIView(APIView):
             run.save()
             return Response({'status': 'finished'})
         return Response(status=400)
-
-
-
