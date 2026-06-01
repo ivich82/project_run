@@ -25,13 +25,20 @@ from app_run.views import RunViewSet, UserViewSet, StartAPIView, StopAPIView, At
 router = DefaultRouter()
 router.register('api/runs', RunViewSet)
 router.register('api/users', UserViewSet)
-router.register('api/athlete_info', AthleteInfoViewSet)
+
+user_detail = AthleteInfoViewSet.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/company_details/',company_details),
     path('api/runs/<int:id>/start/', StartAPIView.as_view()),
     path('api/runs/<int:id>/stop/', StopAPIView.as_view()),
+    path('api/athlete_info/<int:pk>/', user_detail),
     path('', include(router.urls)),
     ]
 

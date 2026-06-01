@@ -40,7 +40,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_data = AthleteSerializer(source='user_id', read_only=True)
+    # user_id = serializers.IntegerField()
 
     class Meta:
         model = AthleteInfo
         fields = '__all__'
+
+    def create(self, validated_data):
+        obj, created = AthleteInfo.objects.get_or_create(
+            user_id=validated_data['user_id'],
+            defaults=validated_data
+        )
+        return  obj

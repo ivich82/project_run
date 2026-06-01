@@ -1,3 +1,6 @@
+from wsgiref import headers
+
+from django.contrib.sessions import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import api_view
@@ -79,6 +82,23 @@ class StopAPIView(APIView):
 class AthleteInfoViewSet(viewsets.ModelViewSet):
     queryset = AthleteInfo.objects.select_related('user_id').all()
     serializer_class = AthleteInfoSerializer
+
+    def get_object(self):
+
+        user_id = self.kwargs.get('pk')
+
+        try:
+            return AthleteInfo.objects.get(user_id=user_id)
+        except AthleteInfo.DoesNotExist:
+            raise Response(status=404)
+
+        def create(self, request, *args, **kwargs):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status_201_CREATED, headers=headers)
 
 
 
