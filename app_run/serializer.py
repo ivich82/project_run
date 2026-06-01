@@ -44,9 +44,8 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
         model = AthleteInfo
         fields = '__all__'
 
-    # def create(self, validated_data):
-    #     obj, created = AthleteInfo.objects.get_or_create(
-    #         user_id=validated_data['user_id'],
-    #         defaults=validated_data
-    #     )
-    #     return  obj
+    def validate_weight(self, value):
+        if 0 < value < 900:
+            raise serializers.ValidationError()
+
+        return value

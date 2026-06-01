@@ -111,8 +111,19 @@ class AthleteInfoAPIView(APIView):
         serializer = AthleteInfoSerializer(object)
         return Response(serializer.data)
 
-
-
-
+    def put(self, request, pk, format=None):
+        user_obj = get_object_or_404(User, id=pk)
+        object, created = AthleteInfo.objects.update_or_create(
+            user_id=user_obj,
+            defaults={
+                'goals': null,
+                'weight': null
+           }
+        )
+        serializer = AthleteInfoSerializer(object, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
