@@ -5,13 +5,14 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from .models import Run
-from .serializer import RunSerializer, UserSerializer
+from .models import Run, AthleteInfo
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+# from rest_framework.decorators import action
 
 @api_view(['GET'])
 def company_details(request):
@@ -74,3 +75,10 @@ class StopAPIView(APIView):
             run.save()
             return Response({'status': 'finished'})
         return Response(status=400)
+
+class AthleteInfoViewSet(viewsets.ModelViewSet):
+    queryset = AthleteInfo.objects.select_related('user_id').all()
+    serializer_class = AthleteInfoSerializer
+
+
+
