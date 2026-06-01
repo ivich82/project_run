@@ -79,29 +79,6 @@ class StopAPIView(APIView):
             return Response({'status': 'finished'})
         return Response(status=400)
 
-# class AthleteInfoViewSet(viewsets.ModelViewSet):
-#     queryset = AthleteInfo.objects.select_related('user_id').all()
-#     serializer_class = AthleteInfoSerializer
-
-
-
-
-    # def get_object(self):
-    #
-    #     user_id = self.kwargs.get('pk')
-    #
-    #     try:
-    #         return AthleteInfo.objects.get(user_id=user_id)
-    #     except AthleteInfo.DoesNotExist:
-    #         return Response(status=404)
-    #
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status_201_CREATED, headers=headers)
 
 class AthleteInfoAPIView(APIView):
 
@@ -113,17 +90,21 @@ class AthleteInfoAPIView(APIView):
 
     def put(self, request, pk, format=None):
         user_obj = get_object_or_404(User, id=pk)
-        object, created = AthleteInfo.objects.update_or_create(
-            user_id=user_obj,
-            defaults={
-                'goals': request.data.get('goals'),
-                'weight': request.data.get('weight')
-           }
-        )
-        serializer = AthleteInfoSerializer(object, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        goals = request.data.get('goals')
+        weight = request.data.get('weight')
+        if   weight.isdecimal() and 0 < int(weight) < 900:
+            object, created = AthleteInfo.objects.update_or_create(
+                user_id=user_obj,
+                defaults={
+                    'goals': goals,
+                    'weight': weight
+               }
+            )
+            serializer = AthleteInfoSerializer(object, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_400_BAD_REQUEST)
 
 

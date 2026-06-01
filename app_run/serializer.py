@@ -38,16 +38,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_data = AthleteSerializer(source='user_id', read_only=True)
-    # user_id = serializers.IntegerField()
+
 
     class Meta:
         model = AthleteInfo
         fields = '__all__'
         read_only_fields = ['user_id']
 
-    def validate_weight(self, value):
-        if  isinstance(value, int|float) and 0 < value < 900:
-            return value
 
-        raise serializers.ValidationError
 
