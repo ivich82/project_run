@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from app_run.views import company_details
 from rest_framework.routers import DefaultRouter
-from app_run.views import RunViewSet, UserViewSet, StartAPIView, StopAPIView, AthleteInfoViewSet
+from app_run.views import RunViewSet, UserViewSet, StartAPIView, StopAPIView, AthleteInfoAPIView
 
 
 
@@ -26,19 +26,14 @@ router = DefaultRouter()
 router.register('api/runs', RunViewSet)
 router.register('api/users', UserViewSet)
 
-user_detail = AthleteInfoViewSet.as_view({
-    'get': 'retrieve',
-    'put': 'update',
-    'patch': 'partial_update',
-    'delete': 'destroy'
-})
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/company_details/',company_details),
     path('api/runs/<int:id>/start/', StartAPIView.as_view()),
     path('api/runs/<int:id>/stop/', StopAPIView.as_view()),
-    path('api/athlete_info/<int:pk>/', user_detail),
-    path('', include(router.urls)),
+    path('api/athlete_info/<int:pk>/', AthleteInfoAPIView.as_view()),
+    path('', include(router.urls))
     ]
 

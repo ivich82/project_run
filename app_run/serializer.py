@@ -26,11 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'date_joined', 'username', 'last_name', 'first_name', 'type', 'runs_finished']
 
     def get_type(self, obj):
-
         return 'coach' if obj.is_staff else 'athlete'
 
     def get_runs_finished(self,obj):
-
         run_finished_all = Run.objects.filter(status='finished')
         return run_finished_all.filter(athlete__id=obj.id).count()
         # user = User.objects.get(id=obj.id)
@@ -46,9 +44,9 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
         model = AthleteInfo
         fields = '__all__'
 
-    def create(self, validated_data):
-        obj, created = AthleteInfo.objects.get_or_create(
-            user_id=validated_data['user_id'],
-            defaults=validated_data
-        )
-        return  obj
+    # def create(self, validated_data):
+    #     obj, created = AthleteInfo.objects.get_or_create(
+    #         user_id=validated_data['user_id'],
+    #         defaults=validated_data
+    #     )
+    #     return  obj

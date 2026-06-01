@@ -79,26 +79,39 @@ class StopAPIView(APIView):
             return Response({'status': 'finished'})
         return Response(status=400)
 
-class AthleteInfoViewSet(viewsets.ModelViewSet):
-    queryset = AthleteInfo.objects.select_related('user_id').all()
-    serializer_class = AthleteInfoSerializer
+# class AthleteInfoViewSet(viewsets.ModelViewSet):
+#     queryset = AthleteInfo.objects.select_related('user_id').all()
+#     serializer_class = AthleteInfoSerializer
 
-    def get_object(self):
 
-        user_id = self.kwargs.get('pk')
 
-        try:
-            return AthleteInfo.objects.get(user_id=user_id)
-        except AthleteInfo.DoesNotExist:
-            return Response(status=404)
 
-        def create(self, request, *args, **kwargs):
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
+    # def get_object(self):
+    #
+    #     user_id = self.kwargs.get('pk')
+    #
+    #     try:
+    #         return AthleteInfo.objects.get(user_id=user_id)
+    #     except AthleteInfo.DoesNotExist:
+    #         return Response(status=404)
+    #
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status_201_CREATED, headers=headers)
 
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status_201_CREATED, headers=headers)
+class AthleteInfoAPIView(APIView):
+
+    def get(self, request, pk, format=None):
+        object, created = AthleteInfo.objects.get_or_create(user_id=pk)
+        if created:
+            serializer = AthleteInfoSerializer(object)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 
 
