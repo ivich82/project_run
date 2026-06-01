@@ -18,6 +18,6 @@ class Run(models.Model):
     )
 
 class AthleteInfo(models.Model):
-    goals = models.TextField(blank=True)
-    weight = models.IntegerField(blank=True)
+    goals = models.TextField(blank=True, null=True)
+    weight = models.IntegerField(blank=True, null=True)
     user_id = models.OneToOneField(User, on_delete=models.CASCADE)
