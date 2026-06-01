@@ -46,6 +46,6 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
 
     def validate_weight(self, value):
         if 0 < value < 900:
-            raise serializers.ValidationError()
+            raise serializers.ValidationError
 
         return value

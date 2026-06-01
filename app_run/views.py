@@ -116,8 +116,8 @@ class AthleteInfoAPIView(APIView):
         object, created = AthleteInfo.objects.update_or_create(
             user_id=user_obj,
             defaults={
-                'goals': null,
-                'weight': null
+                'goals': request.data.goals,
+                'weight': request.data.weight
            }
         )
         serializer = AthleteInfoSerializer(object, data=request.data)
