@@ -106,11 +106,11 @@ class StopAPIView(APIView):
 class AthleteInfoAPIView(APIView):
 
     def get(self, request, pk, format=None):
-        object, created = AthleteInfo.objects.get_or_create(user_id=pk)
-        if created:
-            serializer = AthleteInfoSerializer(object)
-            return Response(serializer.data)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        user_obj = get_object_or_404(User, id=pk)
+        object, created = AthleteInfo.objects.get_or_create(user_id=user_obj)
+        serializer = AthleteInfoSerializer(object)
+        return Response(serializer.data)
+
 
 
 
