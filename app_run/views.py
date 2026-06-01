@@ -90,7 +90,7 @@ class AthleteInfoViewSet(viewsets.ModelViewSet):
         try:
             return AthleteInfo.objects.get(user_id=user_id)
         except AthleteInfo.DoesNotExist:
-            raise Response(status=404)
+            return Response(status=404)
 
         def create(self, request, *args, **kwargs):
             serializer = self.get_serializer(data=request.data)
