@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from .models import Run, AthleteInfo
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer
+from .models import Run, AthleteInfo, Challenge
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -62,7 +62,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 class StartAPIView(APIView):
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
-        if run.status == 'init':
+        if run.status == 'init' or 'finished':
             run.status = 'in_progress'
             run.save()
             data = {'status': 'in_progress'}
@@ -75,6 +75,12 @@ class StopAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
             run.status = 'finished'
+            if run.count_run < 10:
+                run.count_run += 1
+                if run.count_run == 10:
+                    object, created = Challenge.objects.update_or_create(
+                        athlete=run.athlete,
+                        full_name='Сделай 10 Забегов!')
             run.save()
             return Response({'status': 'finished'})
         return Response(status=400)
@@ -90,21 +96,16 @@ class AthleteInfoAPIView(APIView):
 
     def put(self, request, pk, format=None):
         user_obj = get_object_or_404(User, id=pk)
-        goals = request.data.get('goals')
-        weight = request.data.get('weight')
-        if   weight.isdecimal() and 0 < int(weight) < 900:
-            object, created = AthleteInfo.objects.update_or_create(
-                user_id=user_obj,
-                defaults={
-                    'goals': goals,
-                    'weight': weight
-               }
-            )
-            serializer = AthleteInfoSerializer(object, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_400_BAD_REQUEST)
+        object, created = AthleteInfo.objects.update_or_create(user_id=user_obj)
+        serializer = AthleteInfoSerializer(object, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class ChallegeViewSet(viewsets.ModelViewSet):
+    queryset = Challenge.objects.select_related('athlete').all()
+    serializer_class = ChallengeSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['athlete']
 

@@ -16,8 +16,15 @@ class Run(models.Model):
         choices=STATUS_CHOICES,
         default='init'
     )
+    count_run = models.IntegerField(blank=True, default=0)
+
 
 class AthleteInfo(models.Model):
     goals = models.TextField(blank=True, null=True)
     weight = models.IntegerField(blank=True, null=True)
     user_id = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+class Challenge(models.Model):
+    full_name = models.TextField()
+    athlete = models.ForeignKey(User, on_delete=models.CASCADE)

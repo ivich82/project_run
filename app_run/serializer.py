@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Run, AthleteInfo
+from .models import Run, AthleteInfo, Challenge
 from django.contrib.auth.models import User
 
 
@@ -37,13 +37,21 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
-    user_data = AthleteSerializer(source='user_id', read_only=True)
-
 
     class Meta:
         model = AthleteInfo
-        fields = '__all__'
+        fields = ['goals', 'weight', 'user_id']
         read_only_fields = ['user_id']
 
+    def validate_weight(self, value):
+        if not 0 < value < 900 :
+            raise serializers.ValidationError('not correct wiegth')
 
+        return value
 
+class ChallengeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Challenge
+        fields = '__all__'
+        read_only_fields = ['athlete']
