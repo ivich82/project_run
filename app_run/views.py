@@ -15,7 +15,7 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-# from rest_framework.decorators import action
+
 
 @api_view(['GET'])
 def company_details(request):
