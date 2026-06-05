@@ -62,7 +62,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 class StartAPIView(APIView):
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
-        if run.status == 'init' or 'finished':
+        if run.status == 'init':
             run.status = 'in_progress'
             run.save()
             data = {'status': 'in_progress'}
@@ -75,13 +75,14 @@ class StopAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
             run.status = 'finished'
-            if run.count_run < 10:
-                run.count_run += 1
-                if run.count_run == 10:
-                    object, created = Challenge.objects.update_or_create(
-                        athlete=run.athlete,
-                        full_name='Сделай 10 Забегов!')
             run.save()
+            athlete = get_object_or_404(User, id=run.athlete.id)
+            serializer = UserSerializer(athlete)
+            count_run = serializer.data.get('runs_finished')
+            if int(count_run) == 10:
+                object, created = Challenge.objects.update_or_create(
+                    athlete=run.athlete,
+                    full_name='Сделай 10 Забегов!')
             return Response({'status': 'finished'})
         return Response(status=400)
 
@@ -106,6 +107,10 @@ class AthleteInfoAPIView(APIView):
 class ChallegeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related('athlete').all()
     serializer_class = ChallengeSerializer
-    filter_backends = [SearchFilter]
-    search_fields = ['athlete']
 
+    def get_queryset(self):
+        qs = self.queryset
+        athlete = self.request.query_params.get('athlete', None)
+        if athlete:
+            qs = qs.filter(athlete=athlete)
+        return  qs

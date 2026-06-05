@@ -16,7 +16,6 @@ class Run(models.Model):
         choices=STATUS_CHOICES,
         default='init'
     )
-    count_run = models.IntegerField(blank=True, default=0)
 
 
 class AthleteInfo(models.Model):
