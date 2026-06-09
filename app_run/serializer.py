@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
 from .models import Run, AthleteInfo, Challenge, Position
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -63,11 +65,15 @@ class PositionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        run = get_object_or_404(Run, id=data['run'])
-        if not (run.status == 'in_progress' and
-            -90 <= data['latitude'] <= 90 and
-            -180 <= data['longitude'] <= 180):
+        try:
+            run = Run.objects.get(id=data['run'])
+            if not (run.status == 'in_progress' and
+                    -90 <= data['latitude'] <= 90 and
+                    -180 <= data['longitude'] <= 180):
+                raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+        except Run.DoesNotExist:
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+
 
         return  data
 
