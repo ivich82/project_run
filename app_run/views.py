@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from .models import Run, AthleteInfo, Challenge
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
+from .models import Run, AthleteInfo, Challenge, Position
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -114,3 +114,21 @@ class ChallegeViewSet(viewsets.ModelViewSet):
         if athlete:
             qs = qs.filter(athlete=athlete)
         return  qs
+
+class PositionViewSet(viewsets.ModelViewSet):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+
+    def get_queryset(self):
+        qs = self.queryset
+        run = self.request.query_params.get('run', None)
+        if run:
+            qs = qs.filter(run=run)
+        return  qs
+
+    # def destroy(self, request, pk=None):
+    #     instance = self.get_object(id=pk)
+    #     instance.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+        
