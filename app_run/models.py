@@ -17,6 +17,7 @@ class Run(models.Model):
         default='init'
     )
 
+    distance = models.FloatField(null=True)
 
 class AthleteInfo(models.Model):
     goals = models.TextField(blank=True, null=True)
