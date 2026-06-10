@@ -15,6 +15,7 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from geopy.distance import geodesic
 
 
 @api_view(['GET'])
@@ -75,6 +76,12 @@ class StopAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
             run.status = 'finished'
+            run_pos = Position.objects.filter(run = id)
+            print(run_pos)
+            loc = list(map(lambda x:(x.latitude, x.longitude), run_pos))
+            # print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
+            run.distance = sum(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc)))
+            # print(run.distance)
             run.save()
             athlete = get_object_or_404(User, id=run.athlete.id)
             serializer = UserSerializer(athlete)
