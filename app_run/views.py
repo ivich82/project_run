@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
+from geopy.distance import geodesic
 
 @api_view(['GET'])
 def company_details(request):
@@ -79,9 +80,9 @@ class StopAPIView(APIView):
             run_pos = Position.objects.filter(run=id)
             print(run_pos)
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
-            # print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
+            print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
-            # print(run.distance)
+            print(run.distance)
             run.save()
 
             athlete = get_object_or_404(User, id=run.athlete.id)
@@ -98,7 +99,7 @@ class StopAPIView(APIView):
                 object, created = Challenge.objects.update_or_create(
                     athlete = run.athlete,
                     full_name = 'Пробеги 50 километров!')
-
+                print(object.full_name)
             return Response({'status': 'finished'})
         return Response(status=400)
 
