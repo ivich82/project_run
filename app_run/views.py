@@ -85,7 +85,8 @@ class StopAPIView(APIView):
                     full_name='Сделай 10 Забегов!')
 
             sum_distance = Run.objects.filter(status='finished', athlete=athlete.id).aggregate(Sum('distance'))
-            if sum_distance['distance__sum'] >= 50:
+            print(sum_distance)
+            if sum_distance['distance__sum'] and sum_distance['distance__sum'] >= 50:
                 object, created = Challenge.objects.update_or_create(
                     athlete = run.athlete,
                     full_name = 'Пробеги 50 километров!')
