@@ -152,3 +152,12 @@ class PositionViewSet(viewsets.ModelViewSet):
 class  CollectibleItemViewSet(viewsets.ModelViewSet):
     queryset = CollectibleItem.objects.all()
     serializer_class = CollectibleItemSerializer
+
+@api_view(['POST'])
+def upload_file(request):
+    file = request.FILES.get('file')
+    if file:
+        print('ok')
+        file_content = file.read()
+        print(file_content)
+    return Response('POST запрос получен')
