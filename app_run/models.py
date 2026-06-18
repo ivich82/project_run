@@ -35,3 +35,11 @@ class Position(models.Model):
     run = models.IntegerField()
     latitude = models.DecimalField(max_digits=7, decimal_places=4)
     longitude = models.DecimalField(max_digits=8, decimal_places=4)
+
+class CollectibleItem(models.Model):
+    name = models.TextField()
+    uid = models.TextField()
+    latitude = models.DecimalField(max_digits=7, decimal_places=4)
+    longitude = models.DecimalField(max_digits=8, decimal_places=4)
+    picture = models.URLField()
+    value = models.IntegerField()
