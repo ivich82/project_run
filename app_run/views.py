@@ -78,11 +78,11 @@ class StopAPIView(APIView):
             run.status = 'finished'
 
             run_pos = Position.objects.filter(run=id)
-            print(run_pos)
+            # print(run_pos)
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
-            print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
+            # print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
-            print(run.distance)
+            # print(run.distance)
             run.save()
 
             athlete = get_object_or_404(User, id=run.athlete.id)
@@ -94,12 +94,12 @@ class StopAPIView(APIView):
                     full_name='Сделай 10 Забегов!')
 
             sum_distance = Run.objects.filter(status='finished', athlete=athlete.id).aggregate(Sum('distance'))
-            print(sum_distance)
+            # print(sum_distance)
             if sum_distance['distance__sum'] and sum_distance['distance__sum'] >= 50:
                 object, created = Challenge.objects.update_or_create(
                     athlete = run.athlete,
                     full_name = 'Пробеги 50 километров!')
-                print(object.full_name)
+                # print(object.full_name)
             return Response({'status': 'finished'})
         return Response(status=400)
 
