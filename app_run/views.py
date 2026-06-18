@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from .models import Run, AthleteInfo, Challenge, Position
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
+from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -148,4 +148,7 @@ class PositionViewSet(viewsets.ModelViewSet):
     #     instance.delete()
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
-        
+
+class  CollectibleItemViewSet(viewsets.ModelViewSet):
+    queryset = CollectibleItem.objects.all()
+    serializer_class = CollectibleItemSerializer

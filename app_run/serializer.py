@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from .models import Run, AthleteInfo, Challenge, Position
+from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -93,4 +93,7 @@ class PositionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
         return value
 
-
+class CollectibleItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollectibleItem
+        fields = '__all__'
