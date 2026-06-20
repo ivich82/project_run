@@ -17,6 +17,8 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from geopy.distance import geodesic
+from openpyxl import load_workbook
+
 
 @api_view(['GET'])
 def company_details(request):
@@ -158,6 +160,11 @@ def upload_file(request):
     file = request.FILES.get('file')
     if file:
         print('ok')
-        file_content = file.read()
-        print(file_content)
+        workbook = load_workbook(filename=file)
+        sheet = workbook.active
+        results = []
+        for row in sheet.iter_rows(values_only=True):
+            results.append(row)
+            print(row)
+        # print(results)
     return Response('POST запрос получен')
