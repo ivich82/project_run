@@ -159,12 +159,34 @@ class  CollectibleItemViewSet(viewsets.ModelViewSet):
 def upload_file(request):
     file = request.FILES.get('file')
     if file:
-        print('ok')
+        # print('ok')
         workbook = load_workbook(filename=file)
         sheet = workbook.active
-        results = []
-        for row in sheet.iter_rows(values_only=True):
-            results.append(row)
-            print(row)
-        # print(results)
+        results = (row for row in sheet.iter_rows(values_only=True) if all(row) != False)
+        lst = []
+        for index, row in enumerate(results):
+            if index > 0:
+                # print('ok')
+                incoming_data = {
+                    "name": row[0],
+                    "uid": row[1],
+                    "latitude": float(row[3]) if 'abc' not in row[3] else row[3],
+                    "longitude": float(row[4]),
+                    "picture": row[5],
+                    "value": row[2]
+                }
+                serializer = CollectibleItemSerializer(data=incoming_data)
+                # print(serializer)
+                if serializer.is_valid():
+                    print('ok')
+                    serializer.save()
+                else:
+                    lst.append(list(row))
+        return Response(lst)
+
+        # for row in sheet.iter_rows(values_only=True):
+        #     if
+        #     results.append(row)
+        #     print(row)
+        # print(list(results))
     return Response('POST запрос получен')
