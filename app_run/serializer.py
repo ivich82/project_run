@@ -97,3 +97,16 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollectibleItem
         fields = '__all__'
+
+    def validate_longitude(self, value):
+        try:
+            float(value)
+            return float(value)
+        except:
+            return value
+    def validate_latitude(self, value):
+        try:
+            float(value)
+            return float(value)
+        except:
+            return value

@@ -162,31 +162,25 @@ def upload_file(request):
         # print('ok')
         workbook = load_workbook(filename=file)
         sheet = workbook.active
-        results = (row for row in sheet.iter_rows(values_only=True) if all(row) != False)
+        filedata = (row for row in sheet.iter_rows(values_only=True) if all(row) != False)
         lst = []
-        for index, row in enumerate(results):
+        for index, row in enumerate(filedata):
             if index > 0:
                 # print('ok')
                 incoming_data = {
                     "name": row[0],
                     "uid": row[1],
-                    "latitude": float(row[3]) if 'abc' not in row[3] else row[3],
-                    "longitude": float(row[4]),
+                    "latitude": row[3],
+                    "longitude": row[4],
                     "picture": row[5],
                     "value": row[2]
                 }
                 serializer = CollectibleItemSerializer(data=incoming_data)
                 # print(serializer)
                 if serializer.is_valid():
-                    print('ok')
+                    # print('ok')
                     serializer.save()
                 else:
                     lst.append(list(row))
         return Response(lst)
-
-        # for row in sheet.iter_rows(values_only=True):
-        #     if
-        #     results.append(row)
-        #     print(row)
-        # print(list(results))
-    return Response('POST запрос получен')
+    return Response(status=status.HTTP_400_BAD_REQUEST)
