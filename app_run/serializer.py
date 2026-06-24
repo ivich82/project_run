@@ -46,7 +46,6 @@ class UserDetailSerializer(UserSerializer):
         fields = ['items']
 
     def get_items(self, obj):
-        # items = CollectibleItem.objects.filter(items__id=obj.id)
         items =obj.collectibleitems.all()
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data

@@ -61,13 +61,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=False)
         return qs
 
-
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return UserDetailSerializer
         return super().get_serializer_class()
 
+
 class StartAPIView(APIView):
+
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
         if run.status == 'init':
@@ -79,17 +80,15 @@ class StartAPIView(APIView):
 
 
 class StopAPIView(APIView):
+
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
             run.status = 'finished'
 
             run_pos = Position.objects.filter(run=id)
-            # print(run_pos)
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
-            # print(list(geodesic(loc[i-1], loc[i]).km for i in range(1, len(loc))))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
-            # print(run.distance)
             run.save()
 
             athlete = get_object_or_404(User, id=run.athlete.id)
@@ -101,21 +100,16 @@ class StopAPIView(APIView):
                     full_name='Сделай 10 Забегов!')
 
             sum_distance = Run.objects.filter(status='finished', athlete=athlete.id).aggregate(Sum('distance'))
-            # print(sum_distance)
             if sum_distance['distance__sum'] and sum_distance['distance__sum'] >= 50:
                 object, created = Challenge.objects.update_or_create(
                     athlete = run.athlete,
                     full_name = 'Пробеги 50 километров!')
-                # print(object.full_name)
 
             items = CollectibleItem.objects.all()
             for item in items:
                 for i in range(0, len(loc) - 1):
                     if geodesic(loc[i], (item.latitude, item.longitude)).m <= 100:
                         athlete.collectibleitems.add(item)
-                        # print("ok")
-                        # item.items.add(athlete)
-
 
             return Response({'status': 'finished'})
         return Response(status=400)
@@ -160,10 +154,6 @@ class PositionViewSet(viewsets.ModelViewSet):
             qs = qs.filter(run=run)
         return  qs
 
-    # def destroy(self, request, pk=None):
-    #     instance = self.get_object(id=pk)
-    #     instance.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class  CollectibleItemViewSet(viewsets.ModelViewSet):
