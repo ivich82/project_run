@@ -47,7 +47,8 @@ class UserDetailSerializer(UserSerializer):
 
     def get_items(self, obj):
         items = CollectibleItem.objects.filter(items__id=obj.id)
-        return list(item.name for item in items)
+        serializer = CollectibleItemSerializer(items, many=True)
+        return serializer.data
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
