@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
@@ -36,6 +37,17 @@ class UserSerializer(serializers.ModelSerializer):
         # user = User.objects.get(id=obj.id)
         # return user.run_set.filter(status='finished').count()
         # return Run.objects.filter(status='finished', athlete__id=obj.id).count()
+
+class UserDetailSerializer(UserSerializer):
+    items = serializers.SerializerMethodField()
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = ['items']
+
+    def get_items(self, obj):
+        items = CollectibleItem.objects.filter(items__id=obj.id)
+        return list(item.name for item in items)
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
@@ -96,7 +108,7 @@ class PositionSerializer(serializers.ModelSerializer):
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollectibleItem
-        fields = '__all__'
+        fields = ['name', 'uid', 'latitude', 'longitude', 'picture', 'value']
 
     def validate_longitude(self, value):
         try:

@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -62,6 +62,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return UserDetailSerializer
+        return super().get_serializer_class()
+
 class StartAPIView(APIView):
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
@@ -102,6 +107,16 @@ class StopAPIView(APIView):
                     athlete = run.athlete,
                     full_name = 'Пробеги 50 километров!')
                 # print(object.full_name)
+
+            items = CollectibleItem.objects.all()
+            for item in items:
+                for i in range(0, len(loc) - 1):
+                    if geodesic(loc[i], (item.latitude, item.longitude)).m <= 100:
+                        athlete.collectibleitems.add(item)
+                        # print("ok")
+                        # item.items.add(athlete)
+
+
             return Response({'status': 'finished'})
         return Response(status=400)
 
