@@ -32,11 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
         return 'coach' if obj.is_staff else 'athlete'
 
     def get_runs_finished(self,obj):
-        run_finished_all = Run.objects.filter(status='finished')
-        return run_finished_all.filter(athlete__id=obj.id).count()
-        # user = User.objects.get(id=obj.id)
-        # return user.run_set.filter(status='finished').count()
-        # return Run.objects.filter(status='finished', athlete__id=obj.id).count()
+        # run_finished_all = Run.objects.filter(status='finished')
+        # return run_finished_all.filter(athlete__id=obj.id).count()
+        # # user = User.objects.get(id=obj.id)
+        # # return user.run_set.filter(status='finished').count()
+        return Run.objects.select_related('athlete').filter(status='finished', athlete__id=obj.id).count()
 
 class UserDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
@@ -46,9 +46,10 @@ class UserDetailSerializer(UserSerializer):
         fields = ['items']
 
     def get_items(self, obj):
-        items =obj.collectibleitems.all()
+        items = obj.collectibleitems.all()
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
+
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):

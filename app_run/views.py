@@ -59,6 +59,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=True)
         elif type == 'athlete':
             qs = qs.filter(is_staff=False)
+        elif self.action == 'retrieve':
+            qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
         return qs
 
     def get_serializer_class(self):
