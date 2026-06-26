@@ -18,6 +18,7 @@ class Run(models.Model):
     )
 
     distance = models.FloatField(null=True)
+    run_time_seconds = models.IntegerField(blank=True, null=True)
 
 class AthleteInfo(models.Model):
     goals = models.TextField(blank=True, null=True)
@@ -35,6 +36,7 @@ class Position(models.Model):
     run = models.IntegerField()
     latitude = models.DecimalField(max_digits=7, decimal_places=4)
     longitude = models.DecimalField(max_digits=8, decimal_places=4)
+    date_time = models.DateTimeField(blank=True, null=True)
 
 class CollectibleItem(models.Model):
     name = models.TextField()
