@@ -15,9 +15,10 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum
+from django.db.models import Sum, Max, Min
 from geopy.distance import geodesic
 from openpyxl import load_workbook
+from datetime import datetime
 
 
 @api_view(['GET'])
@@ -91,6 +92,16 @@ class StopAPIView(APIView):
             run_pos = Position.objects.filter(run=id)
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
+
+            run_times_pos = Position.objects.filter(run=id).aggregate(
+                max_date_time = Max('date_time'),
+                min_date_time = Min('date_time')
+            )
+            # print(run_times_pos)
+            seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
+            print(seconds)
+            run.date_time = seconds
+
             run.save()
 
             athlete = get_object_or_404(User, id=run.athlete.id)

@@ -73,6 +73,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
         read_only_fields = ['athlete']
 
 class PositionSerializer(serializers.ModelSerializer):
+    date_time = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f')
 
     class Meta:
         model = Position
@@ -118,6 +119,7 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
             return float(value)
         except:
             return value
+
     def validate_latitude(self, value):
         try:
             float(value)
