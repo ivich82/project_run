@@ -79,16 +79,6 @@ class PositionSerializer(serializers.ModelSerializer):
         model = Position
         fields = '__all__'
 
-    # def validate(self, data):
-    #     try:
-    #         run = Run.objects.get(id=data['run'])
-    #         if not (run.status == 'in_progress' and
-    #                 -90 <= data['latitude'] <= 90 and
-    #                 -180 <= data['longitude'] <= 180):
-    #             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-    #     except Run.DoesNotExist:
-    #         raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-
     def validate_run(self, value):
         try:
             run = Run.objects.get(id=value)
