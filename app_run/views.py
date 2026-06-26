@@ -98,7 +98,7 @@ class StopAPIView(APIView):
                 min_date_time = Min('date_time')
             )
             seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
-            run.date_time = seconds
+            run.run_time_seconds = seconds
 
             run.save()
 
