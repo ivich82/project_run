@@ -5,6 +5,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum, Max, Min, Count, Q
 
 class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,8 +38,8 @@ class UserSerializer(serializers.ModelSerializer):
     #     # # user = User.objects.get(id=obj.id)
     #     # # return user.run_set.filter(status='finished').count()
     #     # return Run.objects.select_related('athlete').filter(status='finished', athlete__id=obj.id).count()
-    #     return Run.objects.filter(status='finished', athlete__id=obj.id).count()
-        return obj.runs_finished
+        return obj.__dict__['runs_finished']
+        # return Run.objects.filter(status='finished', athlete__id=obj.id).count()
 
 class UserDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
