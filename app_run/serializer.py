@@ -38,8 +38,9 @@ class UserSerializer(serializers.ModelSerializer):
     #     # # user = User.objects.get(id=obj.id)
     #     # # return user.run_set.filter(status='finished').count()
     #     # return Run.objects.select_related('athlete').filter(status='finished', athlete__id=obj.id).count()
-    #     return obj.__dict__['runs_finished']
-        return Run.objects.filter(status='finished', athlete__id=obj.id).count()
+        return getattr(obj, 'runs_finished', 0)
+    #     return Run.objects.filter(status='finished', athlete__id=obj.id).count()
+
 
 class UserDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
