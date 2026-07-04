@@ -15,7 +15,7 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Min
+from django.db.models import Sum, Max, Min, Count, Q
 from geopy.distance import geodesic
 from openpyxl import load_workbook
 from datetime import datetime
@@ -62,6 +62,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=False)
         elif self.action == 'retrieve':
             qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
+        elif self.action == 'list':
+            qs = User.objects.annotate(
+                runs_finished=Count('run', filter=Q(run__status='finished')))
         return qs
 
     def get_serializer_class(self):
