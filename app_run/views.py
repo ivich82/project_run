@@ -63,9 +63,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=False)
         elif self.action == 'retrieve':
             qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
-        # elif self.action == 'list':
-        #     qs = User.objects.filter(is_superuser=False).annotate(
-        #         runs_finished=Count('run', filter=Q(run__status='finished')))
+
         return qs
 
     def get_serializer_class(self):
@@ -181,14 +179,12 @@ class  CollectibleItemViewSet(viewsets.ModelViewSet):
 def upload_file(request):
     file = request.FILES.get('file')
     if file:
-        # print('ok')
         workbook = load_workbook(filename=file)
         sheet = workbook.active
         filedata = (row for row in sheet.iter_rows(values_only=True) if all(row) != False)
         lst = []
         for index, row in enumerate(filedata):
             if index > 0:
-                # print('ok')
                 incoming_data = {
                     "name": row[0],
                     "uid": row[1],
@@ -198,9 +194,7 @@ def upload_file(request):
                     "value": row[2]
                 }
                 serializer = CollectibleItemSerializer(data=incoming_data)
-                # print(serializer)
                 if serializer.is_valid():
-                    # print('ok')
                     serializer.save()
                 else:
                     lst.append(list(row))
