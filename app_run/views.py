@@ -46,7 +46,7 @@ class UserPagination(PageNumberPagination):
     max_page_size = 50
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.annotate(
+    queryset = User.objects.filter(is_superuser=False).annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished')))
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
@@ -55,7 +55,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = UserPagination
 
     def get_queryset(self):
-        qs = User.objects.filter(is_superuser=False)
+        qs = self.queryset
         type = self.request.query_params.get('type', None)
         if type == 'coach':
             qs = qs.filter(is_staff=True)
@@ -64,9 +64,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         elif self.action == 'retrieve':
             qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
         # elif self.action == 'list':
-        #     qs = User.objects.annotate(
+        #     qs = User.objects.filter(is_superuser=False).annotate(
         #         runs_finished=Count('run', filter=Q(run__status='finished')))
-        return self.queryset
+        return qs
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
