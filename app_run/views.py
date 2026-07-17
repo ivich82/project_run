@@ -130,23 +130,6 @@ class StopAPIView(APIView):
         return Response(status=400)
 
 
-# class AthleteInfoAPIView(APIView):
-
-    # def get(self, request, pk, format=None):
-    #     user_obj = get_object_or_404(User, id=pk)
-    #     object, created = AthleteInfo.objects.get_or_create(user_id=user_obj)
-    #     serializer = AthleteInfoSerializer(object)
-    #     return Response(serializer.data)
-    #
-    # def put(self, request, pk, format=None):
-    #     user_obj = get_object_or_404(User, id=pk)
-    #     object, created = AthleteInfo.objects.update_or_create(user_id=user_obj)
-    #     serializer = AthleteInfoSerializer(object, data=request.data, partial=True)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
-
 class AthleteInfoAPIView(APIView):
 
     def get(self, request, pk, format=None):
@@ -157,22 +140,13 @@ class AthleteInfoAPIView(APIView):
 
     def put(self, request, pk, format=None):
         user_obj = get_object_or_404(User, id=pk)
-        goals = request.data.get('goals')
-        weight = request.data.get('weight')
-        if weight.isdecimal() and 0 < int(weight) < 900:
-            object, created = AthleteInfo.objects.update_or_create(
-                user_id=user_obj,
-                defaults={
-                    'goals': goals,
-                    'weight': weight
-                }
-            )
-            serializer = AthleteInfoSerializer(object, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        object, created = AthleteInfo.objects.update_or_create(user_id=user_obj)
+        serializer = AthleteInfoSerializer(object, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class ChallengeViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.select_related('athlete').all()
