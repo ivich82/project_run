@@ -90,7 +90,6 @@ class StopAPIView(APIView):
     def post(self, request, id):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
-            run.status = 'finished'
 
             run_pos = Position.objects.filter(run=id)
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
@@ -105,6 +104,7 @@ class StopAPIView(APIView):
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
+            run.status = 'finished'
             run.save()
 
             athlete = get_object_or_404(User, id=run.athlete.id)
