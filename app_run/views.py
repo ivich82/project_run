@@ -171,7 +171,22 @@ class PositionViewSet(viewsets.ModelViewSet):
             qs = qs.filter(run=run)
         return  qs
 
+    def perform_create(self, serializer):
+        run = serializer.validated_data['run']
+        queryset = Position.objects.filter(run=run)
+        if queryset.exists():
+            pos_lst = list(queryset)
+            date_time = serializer.validated_data['date_time']
+            lat = serializer.validated_data['latitude']
+            long = serializer.validated_data['longitude']
+            distance = geodesic((lat.latitude, long.longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).m
+            seconds = (date_time - pos_lst[-1].date_time).total_seconds()
+            speed = distance / seconds
+            if len(pos_lst) == 1:
 
+                print(list(queryset))
+        else:
+           serializer.save(distance=0, speed=0)
 
 class  CollectibleItemViewSet(viewsets.ModelViewSet):
     queryset = CollectibleItem.objects.all()
