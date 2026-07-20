@@ -15,7 +15,7 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Min, Count, Q
+from django.db.models import Sum, Max, Min, Count, Q, Avg
 from geopy.distance import geodesic
 from openpyxl import load_workbook
 from datetime import datetime
@@ -95,17 +95,23 @@ class StopAPIView(APIView):
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
 
-            run_times_pos = Position.objects.filter(run=id).aggregate(
+            run_times_pos = run_pos.aggregate(
                 max_date_time = Max('date_time'),
-                min_date_time = Min('date_time')
+                min_date_time = Min('date_time'),
+                average_speed = Avg('speed')
             )
             min, max = run_times_pos['min_date_time'], run_times_pos['max_date_time']
             if max and min:
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
+            pos_end = max(run_pos, key=lambda x: x.date_time)
+            pos_end.speed = run_times_pos['average_speed']
+            pos_end.save()
+
             run.status = 'finished'
             run.save()
+
 
             athlete = get_object_or_404(User, id=run.athlete.id)
             serializer = UserSerializer(athlete)
@@ -179,14 +185,13 @@ class PositionViewSet(viewsets.ModelViewSet):
             date_time = serializer.validated_data['date_time']
             lat = serializer.validated_data['latitude']
             long = serializer.validated_data['longitude']
-            distance = geodesic((lat.latitude, long.longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).m
+            distance_part = geodesic((lat.latitude, long.longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
-            speed = distance / seconds
-            if len(pos_lst) == 1:
-
-                print(list(queryset))
+            speed = distance_part / seconds
+            distance = sum(obj.distance for obj in queryset) + distance_part / 1000
+            serializer.save(distance=distance, speed=speed)
         else:
-           serializer.save(distance=0, speed=0)
+            serializer.save(distance=0, speed=0)
 
 class  CollectibleItemViewSet(viewsets.ModelViewSet):
     queryset = CollectibleItem.objects.all()
