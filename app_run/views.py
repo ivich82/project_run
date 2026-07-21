@@ -106,7 +106,7 @@ class StopAPIView(APIView):
                 run.run_time_seconds = seconds
 
             pos_end = run_pos.get(date_time=max)
-            pos_end.speed = round(run_times_pos['average_speed'], 2)
+            pos_end.speed = run_times_pos['average_speed']
             pos_end.save()
 
             run.status = 'finished'
@@ -193,7 +193,7 @@ class PositionViewSet(viewsets.ModelViewSet):
             speed = distance_part / seconds
             distance = pos_lst[-1].distance + distance_part / 1000
 
-            serializer.save(distance=round(distance, 2), speed=round(speed, 2))
+            serializer.save(distance=distance, speed=speed)
         else:
             serializer.save(distance=0, speed=0)
 
