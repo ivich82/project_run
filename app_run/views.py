@@ -105,11 +105,9 @@ class StopAPIView(APIView):
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
-            pos_end = run_pos.filter(date_time=max)
+            pos_end = run_pos.get(date_time=max)
             pos_end.speed = round(run_times_pos['average_speed'], 2)
-            serializer = PositionSerializer(data=pos_end, many=True)
-            if serializer.is_valid():
-                serializer.save()
+            pos_end.save()
 
             run.status = 'finished'
             run.save()
@@ -193,7 +191,7 @@ class PositionViewSet(viewsets.ModelViewSet):
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
 
             speed = distance_part / seconds
-            distance = sum(obj.distance for obj in queryset) + distance_part / 1000
+            distance = pos_lst[-1].distance + distance_part / 1000
 
             serializer.save(distance=round(distance, 2), speed=round(speed, 2))
         else:
