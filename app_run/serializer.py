@@ -100,11 +100,10 @@ class PositionSerializer(serializers.ModelSerializer):
         return value
 
     def get_speed(self, obj):
-        print(type(obj.speed))
         return round(obj.speed, 2)
 
     def get_distance(self, obj):
-        return obj.distance
+        return round(obj.distance, 2)
 
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
