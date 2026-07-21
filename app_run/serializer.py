@@ -73,10 +73,12 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 class PositionSerializer(serializers.ModelSerializer):
     date_time = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f')
+    speed = serializers.SerializerMethodField()
+    distance = serializers.SerializerMethodField()
 
     class Meta:
         model = Position
-        fields = '__all__'
+        fields = ['id', 'run', 'latitude', 'longitude', 'date_time', 'speed', 'distance']
 
     def validate_run(self, value):
         try:
@@ -96,6 +98,13 @@ class PositionSerializer(serializers.ModelSerializer):
         if not -180 <= value <= 180:
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
         return value
+
+    def get_speed(self, obj):
+        print(type(obj.speed))
+        return round(obj.speed, 2)
+
+    def get_distance(self, obj):
+        return obj.distance
 
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:

@@ -179,10 +179,10 @@ class PositionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         run = serializer.validated_data['run']
-        queryset = Position.objects.filter(run=run)
+        queryset = Position.objects.filter(run=run).order_by('date_time')
         if queryset.exists():
 
-            pos_lst = list(queryset)
+            pos_lst =list(queryset)
             date_time = serializer.validated_data['date_time']
             latitude = serializer.validated_data['latitude']
             longitude = serializer.validated_data['longitude']
