@@ -105,9 +105,11 @@ class StopAPIView(APIView):
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
-            pos_end = max(run_pos, key=lambda x: x.date_time)
-            pos_end.speed = run_times_pos['average_speed']
-            pos_end.save()
+            pos_end = run_pos.filter(date_time=max)
+            pos_end.speed = round(run_times_pos['average_speed'], 2)
+            serializer = PositionSerializer(data=pos_end, many=True)
+            if serializer.is_valid():
+                serializer.save()
 
             run.status = 'finished'
             run.save()
@@ -181,15 +183,19 @@ class PositionViewSet(viewsets.ModelViewSet):
         run = serializer.validated_data['run']
         queryset = Position.objects.filter(run=run)
         if queryset.exists():
+
             pos_lst = list(queryset)
             date_time = serializer.validated_data['date_time']
-            lat = serializer.validated_data['latitude']
-            long = serializer.validated_data['longitude']
-            distance_part = geodesic((lat.latitude, long.longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
+            latitude = serializer.validated_data['latitude']
+            longitude = serializer.validated_data['longitude']
+
+            distance_part = geodesic((latitude, longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
+
             speed = distance_part / seconds
             distance = sum(obj.distance for obj in queryset) + distance_part / 1000
-            serializer.save(distance=distance, speed=speed)
+
+            serializer.save(distance=round(distance, 2), speed=round(speed, 2))
         else:
             serializer.save(distance=0, speed=0)
 
