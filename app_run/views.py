@@ -91,7 +91,7 @@ class StopAPIView(APIView):
         run = get_object_or_404(Run, id=id)
         if run.status == 'in_progress':
 
-            run_pos = Position.objects.filter(run=id)
+            run_pos = Position.objects.filter(run=id).order_by('date_time')
             loc = list(map(lambda x: (x.latitude, x.longitude), run_pos))
             run.distance = sum(geodesic(loc[i - 1], loc[i]).km for i in range(1, len(loc)))
 
