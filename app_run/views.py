@@ -119,7 +119,6 @@ class StopAPIView(APIView):
                     full_name='Сделай 10 Забегов!')
 
             if run.distance >= 2 and run.run_time_seconds <= 10 * 60:
-                print('ok')
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
                     full_name='2 километра за 10 минут!')
