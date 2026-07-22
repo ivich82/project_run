@@ -105,9 +105,6 @@ class StopAPIView(APIView):
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
-            # pos_end = run_pos.get(date_time=max)
-            # pos_end.speed = run_times_pos['average_speed']
-            # pos_end.save()
             run.speed = run_times_pos['average_speed']
             run.status = 'finished'
             run.save()
@@ -120,6 +117,13 @@ class StopAPIView(APIView):
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
                     full_name='Сделай 10 Забегов!')
+
+            if run.distance >= 2 and run.run_time_seconds <= 10 * 60:
+                print('ok')
+                object, created = Challenge.objects.update_or_create(
+                    athlete=run.athlete,
+                    full_name='2 километра за 10 минут!')
+
 
             sum_distance = Run.objects.filter(status='finished', athlete=athlete.id).aggregate(Sum('distance'))
             if sum_distance['distance__sum'] and sum_distance['distance__sum'] >= 50:
@@ -182,7 +186,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         queryset = Position.objects.filter(run=run).order_by('date_time')
         if queryset.exists():
 
-            pos_lst =list(queryset)
+            pos_lst = list(queryset)
             date_time = serializer.validated_data['date_time']
             latitude = serializer.validated_data['latitude']
             longitude = serializer.validated_data['longitude']
