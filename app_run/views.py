@@ -105,10 +105,10 @@ class StopAPIView(APIView):
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
 
-            pos_end = run_pos.get(date_time=max)
-            pos_end.speed = run_times_pos['average_speed']
-            pos_end.save()
-
+            # pos_end = run_pos.get(date_time=max)
+            # pos_end.speed = run_times_pos['average_speed']
+            # pos_end.save()
+            run.speed = run_times_pos['average_speed']
             run.status = 'finished'
             run.save()
 

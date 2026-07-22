@@ -15,11 +15,14 @@ class AthleteSerializer(serializers.ModelSerializer):
 
 class RunSerializer(serializers.ModelSerializer):
     athlete_data = AthleteSerializer(source='athlete', read_only=True)
+    speed = serializers.SerializerMethodField()
 
     class Meta:
         model = Run
         fields = '__all__'
 
+    def get_speed(self, obj):
+        return round(obj.speed, 2) if obj.speed else obj.speed
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
@@ -100,10 +103,10 @@ class PositionSerializer(serializers.ModelSerializer):
         return value
 
     def get_speed(self, obj):
-        return round(obj.speed, 2)
+        return round(obj.speed, 2) if obj.speed else obj.speed
 
     def get_distance(self, obj):
-        return round(obj.distance, 2)
+        return round(obj.distance, 2) if obj.distance else obj.distance
 
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:
