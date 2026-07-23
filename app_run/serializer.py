@@ -45,7 +45,7 @@ class UserDetailSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ['items']
+        fields = UserSerializer.Meta.fields + ['items']
 
     def get_items(self, obj):
         items = obj.collectibleitems.all()
