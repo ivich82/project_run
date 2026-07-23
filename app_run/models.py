@@ -49,3 +49,7 @@ class CollectibleItem(models.Model):
     picture = models.URLField()
     value = models.IntegerField()
     items = models.ManyToManyField(User,  related_name='collectibleitems')
+
+class Subscribe(models.Model):
+    athlete = models.ForeignKey(User, on_delete=models.CASCADE, related_name='athlete')
+    coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name='coach')
