@@ -15,7 +15,7 @@ from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Min, Count, Q, Avg, Model
+from django.db.models import Sum, Max, Min, Count, Q, Avg
 from geopy.distance import geodesic
 from openpyxl import load_workbook
 from datetime import datetime
@@ -152,7 +152,7 @@ class AthleteInfoAPIView(APIView):
         user_obj = get_object_or_404(User, id=pk)
         object, created = AthleteInfo.objects.update_or_create(user_id=user_obj)
         serializer = AthleteInfoSerializer(object, data=request.data, partial=True)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
