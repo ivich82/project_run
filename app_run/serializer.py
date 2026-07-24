@@ -1,11 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from rest_framework.status import HTTP_400_BAD_REQUEST
-
-from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
+from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Min, Count, Q
 
 class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,7 +33,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_runs_finished(self,obj):
         return getattr(obj, 'runs_finished', 0)
-        # return Run.objects.select_related('athlete').filter(status='finished', athlete__id=obj.id).count()
 
 
 class UserDetailSerializer(UserSerializer):
@@ -126,3 +121,18 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
             return float(value)
         except:
             return value
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = ['athlete', 'coach']
+
+    # def validate_athlete(self, value):
+    #     try:
+    #         athlete = User.objects.get(id=value)
+    #         serializer = UserSerializer(athlete)
+    #         if not serializer.data.get('type') == 'athlete':
+    #             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+    #     except User.DoesNotExist:
+    #         raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+    #     return value

@@ -8,14 +8,14 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer
+from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer, SubscribeSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Min, Count, Q, Avg
+from django.db.models import Sum, Max, Min, Count, Q, Avg, Model
 from geopy.distance import geodesic
 from openpyxl import load_workbook
 from datetime import datetime
@@ -152,10 +152,11 @@ class AthleteInfoAPIView(APIView):
         user_obj = get_object_or_404(User, id=pk)
         object, created = AthleteInfo.objects.update_or_create(user_id=user_obj)
         serializer = AthleteInfoSerializer(object, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ChallengeViewSet(viewsets.ModelViewSet):
@@ -229,3 +230,34 @@ def upload_file(request):
                     lst.append(list(row))
         return Response(lst)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubscribeAPIView(APIView):
+
+    def post(self, request, id):
+        coach = get_object_or_404(User, id=id)
+        serializer_coach = UserSerializer(coach)
+        if not serializer_coach.data.get('type') == 'coach':
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        athlete_id = request.data.get('athlete')
+        try:
+            athlete = User.objects.get(id=athlete_id)
+            serializer = UserSerializer(athlete)
+            if not serializer.data.get('type') == 'athlete':
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = SubscribeSerializer(data={'coach': id, 'athlete': athlete_id})
+
+        queryset = Subscribe.objects.filter(coach=id)
+
+        for obj in queryset:
+            if obj.athlete_id == athlete_id:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
