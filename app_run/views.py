@@ -238,7 +238,7 @@ class SubscribeAPIView(APIView):
         coach = get_object_or_404(User, id=id)
         serializer_coach = UserSerializer(coach)
         if not serializer_coach.data.get('type') == 'coach':
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         athlete_id = request.data.get('athlete')
         try:
