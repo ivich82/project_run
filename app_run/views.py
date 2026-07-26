@@ -1,6 +1,7 @@
 from wsgiref import headers
 
 from django.contrib.sessions import serializers
+from django.template.context_processors import request
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import api_view
@@ -235,29 +236,19 @@ def upload_file(request):
 class SubscribeAPIView(APIView):
 
     def post(self, request, id):
+
         coach = get_object_or_404(User, id=id)
-        serializer_coach = UserSerializer(coach)
-        if not serializer_coach.data.get('type') == 'coach':
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
         athlete_id = request.data.get('athlete')
-        try:
-            athlete = User.objects.get(id=athlete_id)
-            serializer = UserSerializer(athlete)
-            if not serializer.data.get('type') == 'athlete':
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = SubscribeSerializer(data={'coach': id, 'athlete': athlete_id})
-
-        queryset = Subscribe.objects.filter(coach=id)
-
-        for obj in queryset:
-            if obj.athlete_id == athlete_id:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        serializer = SubscribeSerializer(data={'athlete': athlete_id, 'coach': id})
         serializer.is_valid(raise_exception=True)
+
+        queryset = Subscribe.objects.filter(coach_id=id)
+        if queryset.exists():
+            for obj in queryset:
+                if obj.athlete_id == athlete_id:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+

@@ -127,12 +127,20 @@ class SubscribeSerializer(serializers.ModelSerializer):
         model = Subscribe
         fields = ['athlete', 'coach']
 
-    # def validate_athlete(self, value):
-    #     try:
-    #         athlete = User.objects.get(id=value)
-    #         serializer = UserSerializer(athlete)
-    #         if not serializer.data.get('type') == 'athlete':
-    #             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-    #     except User.DoesNotExist:
-    #         raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-    #     return value
+    def validate_athlete(self, value):
+        try:
+            serializer = UserSerializer(value)
+            if not serializer.data.get('type') == 'athlete':
+                raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+        except User.DoesNotExist:
+            raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+        return value
+
+    def validate_coach(self, value):
+        try:
+            serializer = UserSerializer(value)
+            if not serializer.data.get('type') == 'coach':
+                raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+        except User.DoesNotExist:
+            raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+        return value
