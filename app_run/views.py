@@ -72,12 +72,12 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     #         return AthleteDetailSerializer
     #     return super().get_serializer_class()
 
-    # def get_serializer(self, *args, **kwargs):
-    #     if self.action == 'retrieve':
-    #         if args[0].is_staff:
-    #             return CoachDetailSerializer(*args, **kwargs)
-    #         return AthleteDetailSerializer(*args, **kwargs)
-    #     return super().get_serializer(*args, **kwargs)
+    def get_serializer(self, *args, **kwargs):
+        if self.action == 'retrieve':
+            if args[0].is_staff:
+                return CoachDetailSerializer(*args, **kwargs)
+            return AthleteDetailSerializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
 class StartAPIView(APIView):
 
