@@ -52,7 +52,6 @@ class AthleteDetailSerializer(UserSerializer):
         subscribe = Subscribe.objects.filter(athlete_id=obj.id).first()
         if subscribe != None:
             return subscribe.coach_id
-        raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
 
 class CoachDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
@@ -71,7 +70,6 @@ class CoachDetailSerializer(UserSerializer):
         subscribe = Subscribe.objects.filter(coach_id=obj.id)
         if subscribe != None:
             return list(map(lambda x: x.athlete_id, subscribe))
-        raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
@@ -155,11 +153,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
     def validate_athlete(self, value):
 
         if value.is_staff:
-            raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+            raise serializers.ValidationError()
         return value
 
     def validate_coach(self, value):
 
         if not value.is_staff:
-            raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
+            raise serializers.ValidationError()
         return value
