@@ -48,28 +48,40 @@ class AthleteDetailSerializer(UserSerializer):
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
 
+    # def validate_coach(self, value):
+    #
+    #     if not Subscribe.objects.filter(athlete_id=value.id).first().exists():
+    #         raise serializers.ValidationError()
+    #     return value
+
     def get_coach(self, obj):
-        subscribe = Subscribe.objects.filter(athlete_id=obj.id).first()
-        if subscribe != None:
-            return subscribe.coach_id
+        return Subscribe.objects.filter(athlete_id=obj.id).first().coach_id
+
 
 class CoachDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
-    athlete = serializers.SerializerMethodField()
+    athletes = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = UserSerializer.Meta.fields + ['items',  'athlete']
+        fields = UserSerializer.Meta.fields + ['items',  'athletes']
 
     def get_items(self, obj):
         items = obj.collectibleitems.all()
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
 
-    def get_athlete(self, obj):
+    # def validate_athlete(self, value):
+    #
+    #     if not Subscribe.objects.filter(coach_id=value.id).exists():
+    #         raise serializers.ValidationError()
+    #     return value
+
+
+    def get_athletes(self, obj):
         subscribe = Subscribe.objects.filter(coach_id=obj.id)
-        if subscribe != None:
-            return list(map(lambda x: x.athlete_id, subscribe))
+        return list(map(lambda x: x.athlete_id, subscribe))
+
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
