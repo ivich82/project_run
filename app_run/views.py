@@ -10,7 +10,7 @@ from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer, SubscribeSerializer
+from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -49,7 +49,6 @@ class UserPagination(PageNumberPagination):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_superuser=False).annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished')))
-    # queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -63,16 +62,22 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=True)
         elif type == 'athlete':
             qs = qs.filter(is_staff=False)
-        elif self.action == 'retrieve':
-            qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
-
         return qs
 
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return UserDetailSerializer
-        return super().get_serializer_class()
+    # def get_serializer_class(self):
+    #     if self.action == 'retrieve':
+    #         obj = self.get_object()
+    #         if obj.is_staff:
+    #             return CoachDetailSerializer
+    #         return AthleteDetailSerializer
+    #     return super().get_serializer_class()
 
+    # def get_serializer(self, *args, **kwargs):
+    #     if self.action == 'retrieve':
+    #         if args[0].is_staff:
+    #             return CoachDetailSerializer(*args, **kwargs)
+    #         return AthleteDetailSerializer(*args, **kwargs)
+    #     return super().get_serializer(*args, **kwargs)
 
 class StartAPIView(APIView):
 
@@ -241,7 +246,6 @@ class SubscribeAPIView(APIView):
         athlete_id = request.data.get('athlete')
         serializer = SubscribeSerializer(data={'athlete': athlete_id, 'coach': id})
         serializer.is_valid(raise_exception=True)
-
         queryset = Subscribe.objects.filter(coach_id=id)
         if queryset.exists():
             for obj in queryset:

@@ -35,18 +35,39 @@ class UserSerializer(serializers.ModelSerializer):
         return getattr(obj, 'runs_finished', 0)
 
 
-class UserDetailSerializer(UserSerializer):
+class AthleteDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
+    coach = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = UserSerializer.Meta.fields + ['items']
+        fields = UserSerializer.Meta.fields + ['items',  'coach']
 
     def get_items(self, obj):
         items = obj.collectibleitems.all()
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
 
+    def get_coach(self, obj):
+        subscribe = Subscribe.objects.filter(athlete_id=obj.id).first()
+        return subscribe.coach_id
+
+class CoachDetailSerializer(UserSerializer):
+    items = serializers.SerializerMethodField()
+    athlete = serializers.SerializerMethodField()
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ['items',  'athlete']
+
+    def get_items(self, obj):
+        items = obj.collectibleitems.all()
+        serializer = CollectibleItemSerializer(items, many=True)
+        return serializer.data
+
+    def get_athlete(self, obj):
+        subscribe = Subscribe.objects.filter(coach_id=obj.id)
+        return list(map(lambda x: x.athlete_id, subscribe))
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
@@ -128,19 +149,13 @@ class SubscribeSerializer(serializers.ModelSerializer):
         fields = ['athlete', 'coach']
 
     def validate_athlete(self, value):
-        try:
-            serializer = UserSerializer(value)
-            if not serializer.data.get('type') == 'athlete':
-                raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-        except User.DoesNotExist:
+
+        if value.is_staff:
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
         return value
 
     def validate_coach(self, value):
-        try:
-            serializer = UserSerializer(value)
-            if not serializer.data.get('type') == 'coach':
-                raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
-        except User.DoesNotExist:
+
+        if not value.is_staff:
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
         return value
