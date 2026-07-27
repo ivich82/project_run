@@ -50,7 +50,7 @@ class AthleteDetailSerializer(UserSerializer):
 
     def get_coach(self, obj):
         subscribe = Subscribe.objects.filter(athlete_id=obj.id).first()
-        if subscribe.exists():
+        if subscribe != None:
             return subscribe.coach_id
         raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
 
@@ -69,7 +69,7 @@ class CoachDetailSerializer(UserSerializer):
 
     def get_athlete(self, obj):
         subscribe = Subscribe.objects.filter(coach_id=obj.id)
-        if subscribe.exists():
+        if subscribe != None:
             return list(map(lambda x: x.athlete_id, subscribe))
         raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
 
