@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
+from s3transfer import subscribers
+
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 from django.contrib.auth.models import User
 
@@ -48,14 +50,10 @@ class AthleteDetailSerializer(UserSerializer):
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
 
-    # def validate_coach(self, value):
-    #
-    #     if not Subscribe.objects.filter(athlete_id=value.id).first().exists():
-    #         raise serializers.ValidationError()
-    #     return value
 
     def get_coach(self, obj):
-        return Subscribe.objects.filter(athlete_id=obj.id).first().coach_id
+        subscribe = Subscribe.objects.filter(athlete_id=obj.id).first()
+        return subscribe.coach_id if subscribe else None
 
 
 class CoachDetailSerializer(UserSerializer):
@@ -71,16 +69,10 @@ class CoachDetailSerializer(UserSerializer):
         serializer = CollectibleItemSerializer(items, many=True)
         return serializer.data
 
-    # def validate_athlete(self, value):
-    #
-    #     if not Subscribe.objects.filter(coach_id=value.id).exists():
-    #         raise serializers.ValidationError()
-    #     return value
-
 
     def get_athletes(self, obj):
         subscribe = Subscribe.objects.filter(coach_id=obj.id)
-        return list(map(lambda x: x.athlete_id, subscribe))
+        return list(map(lambda x: x.athlete_id, subscribe)) if subscribe.exists() else None
 
 
 

@@ -246,11 +246,7 @@ class SubscribeAPIView(APIView):
         athlete_id = request.data.get('athlete')
         serializer = SubscribeSerializer(data={'athlete': athlete_id, 'coach': id})
         serializer.is_valid(raise_exception=True)
-        # queryset = Subscribe.objects.filter(coach_id=id)
         if Subscribe.objects.filter(coach_id=id, athlete_id=athlete_id).exists():
-        # if queryset.exists():
-        #     for obj in queryset:
-        #         if obj.athlete_id == athlete_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
