@@ -253,3 +253,37 @@ class SubscribeAPIView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class ChallengesAPIView(APIView):
+
+    def get(self, request):
+        lst = []
+        set_callange = set()
+        queryset = Challenge.objects.select_related('athlete').all()
+        for obj in queryset:
+            d = {}
+            full_name = obj.full_name
+            athlete = obj.athlete
+            if full_name in set_callange:
+                for el in lst:
+                    if el['name_to_display'] == full_name:
+                        el['athletes'].append(
+                            {
+                                'id': athlete.id,
+                                'full_name': athlete.first_name + ' ' + athlete.last_name,
+                                'username': athlete.username
+
+                            }
+                        )
+            else:
+                set_callange.add(full_name)
+                d['name_to_display'] = full_name
+                d['athletes'] = [
+                    {
+                        'id': athlete.id,
+                        'full_name': athlete.first_name + ' ' + athlete.last_name,
+                        'username': athlete.username
+
+                    }
+                ]
+                lst.append(d)
+        return Response(lst)
