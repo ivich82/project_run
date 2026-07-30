@@ -117,11 +117,14 @@ class StopAPIView(APIView):
             run.status = 'finished'
             run.save()
 
-
-            athlete = get_object_or_404(User, id=run.athlete.id)
+            annotated_queryset = User.objects.annotate(
+                runs_finished=Count('run', filter=Q(run__status='finished'))
+            )
+            athlete = get_object_or_404(annotated_queryset, id=run.athlete.id)
             serializer = UserSerializer(athlete)
             count_run = serializer.data.get('runs_finished')
-            if int(count_run) >= 10:
+            print(count_run)
+            if int(count_run) == 10:
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
                     full_name='Сделай 10 Забегов!')
