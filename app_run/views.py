@@ -256,7 +256,7 @@ class SubscribeAPIView(APIView):
 
 class ChallengesAPIView(APIView):
 
-    def get(self, request):
+    def get(self, request, id):
         lst = []
         set_callange = set()
         queryset = Challenge.objects.select_related('athlete').all()
