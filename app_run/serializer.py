@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         return 'coach' if obj.is_staff else 'athlete'
 
     def get_runs_finished(self,obj):
-        return obj.runs_finished if obj.runs_finished else None
+        return getattr(obj, 'run_finished')
 
 
 class AthleteDetailSerializer(UserSerializer):
