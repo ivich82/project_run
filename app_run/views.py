@@ -168,7 +168,7 @@ class AthleteInfoAPIView(APIView):
 
 
 class ChallengeViewSet(viewsets.ModelViewSet):
-    queryset = Challenge.objects.all()
+    queryset = Challenge.objects.select_related('athlete').all()
     serializer_class = ChallengeSerializer
 
     def get_queryset(self):
