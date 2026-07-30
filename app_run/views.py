@@ -129,7 +129,7 @@ class StopAPIView(APIView):
                     athlete=run.athlete,
                     full_name='Сделай 10 Забегов!')
 
-            athlete = get_object_or_404(User, id=run.athlete.id)
+            # athlete = get_object_or_404(User, id=run.athlete.id)
 
             if run.distance >= 2 and run.run_time_seconds <= 10 * 60:
                 object, created = Challenge.objects.update_or_create(
