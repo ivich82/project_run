@@ -123,11 +123,13 @@ class StopAPIView(APIView):
             athlete = get_object_or_404(annotated_queryset, id=run.athlete.id)
             serializer = UserSerializer(athlete)
             count_run = serializer.data.get('runs_finished')
-            print(count_run)
+            # print(count_run)
             if int(count_run) == 10:
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
                     full_name='Сделай 10 Забегов!')
+
+            athlete = get_object_or_404(User, id=run.athlete.id)
 
             if run.distance >= 2 and run.run_time_seconds <= 10 * 60:
                 object, created = Challenge.objects.update_or_create(
