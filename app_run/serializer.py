@@ -35,11 +35,11 @@ class UserSerializer(serializers.ModelSerializer):
         return 'coach' if obj.is_staff else 'athlete'
 
     def get_runs_finished(self,obj):
-        annotated_queryset = User.objects.annotate(
-            runs_finished=Count('run', filter=Q(run__status='finished'))
-        )
-        # return getattr(obj, 'runs_finished', 0)
-        return annotated_queryset.get(id=obj.id).runs_finished
+        # annotated_queryset = User.objects.annotate(
+        #     runs_finished=Count('run', filter=Q(run__status='finished'))
+        # )
+        return getattr(obj, 'runs_finished', 0)
+        # return annotated_queryset.get(id=obj.id).runs_finished
 
 class AthleteDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
