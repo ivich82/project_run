@@ -47,8 +47,9 @@ class UserPagination(PageNumberPagination):
     max_page_size = 50
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.filter(is_superuser=False).annotate(
-                runs_finished=Count('run', filter=Q(run__status='finished')))
+    # queryset = User.objects.filter(is_superuser=False).annotate(
+    #             runs_finished=Count('run', filter=Q(run__status='finished')))
+    queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -117,10 +118,10 @@ class StopAPIView(APIView):
             run.status = 'finished'
             run.save()
 
-            annotated_queryset = User.objects.annotate(
-                runs_finished=Count('run', filter=Q(run__status='finished'))
-            )
-            athlete = get_object_or_404(annotated_queryset, id=run.athlete.id)
+            # annotated_queryset = User.objects.annotate(
+            #     runs_finished=Count('run', filter=Q(run__status='finished'))
+            # )
+            athlete = get_object_or_404(User, id=run.athlete.id)
             serializer = UserSerializer(athlete)
             count_run = serializer.data.get('runs_finished')
             # print(count_run)

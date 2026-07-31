@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from s3transfer import subscribers
+# from s3transfer import subscribers
 
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 from django.contrib.auth.models import User
+from django.db.models import Sum, Max, Min, Count, Q, Avg
 
 class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,8 +35,11 @@ class UserSerializer(serializers.ModelSerializer):
         return 'coach' if obj.is_staff else 'athlete'
 
     def get_runs_finished(self,obj):
-        return getattr(obj, 'runs_finished', 0)
-
+        annotated_queryset = User.objects.annotate(
+            runs_finished=Count('run', filter=Q(run__status='finished'))
+        )
+        # return getattr(obj, 'runs_finished', 0)
+        return annotated_queryset.get(id=obj.id).runs_finished
 
 class AthleteDetailSerializer(UserSerializer):
     items = serializers.SerializerMethodField()
