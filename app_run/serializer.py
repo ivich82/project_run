@@ -13,14 +13,14 @@ class AthleteSerializer(serializers.ModelSerializer):
 
 class RunSerializer(serializers.ModelSerializer):
     athlete_data = AthleteSerializer(source='athlete', read_only=True)
-    # speed = serializers.SerializerMethodField()
+    speed = serializers.SerializerMethodField()
 
     class Meta:
         model = Run
         fields = '__all__'
 
-    # def get_speed(self, obj):
-    #     return round(obj.speed, 2) if obj.speed else obj.speed
+    def get_speed(self, obj):
+        return round(obj.speed, 2) if obj.speed else obj.speed
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
@@ -101,8 +101,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 class PositionSerializer(serializers.ModelSerializer):
     date_time = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f')
-    # speed = serializers.SerializerMethodField()
-    # distance = serializers.SerializerMethodField()
+    speed = serializers.SerializerMethodField()
+    distance = serializers.SerializerMethodField()
 
     class Meta:
         model = Position
@@ -127,11 +127,11 @@ class PositionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('HTTP_400_BAD_REQUEST')
         return value
 
-    # def get_speed(self, obj):
-    #     return round(obj.speed, 2) if obj.speed else obj.speed
-    #
-    # def get_distance(self, obj):
-    #     return round(obj.distance, 2) if obj.distance else obj.distance
+    def get_speed(self, obj):
+        return round(obj.speed, 2) if obj.speed else obj.speed
+
+    def get_distance(self, obj):
+        return round(obj.distance, 2) if obj.distance else obj.distance
 
 class CollectibleItemSerializer(serializers.ModelSerializer):
     class Meta:

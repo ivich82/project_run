@@ -113,8 +113,7 @@ class StopAPIView(APIView):
             if max and min:
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
-            avg_speed = run_times_pos['average_speed'] or 0.0
-            run.speed = round(avg_speed, 2)
+            run.speed= run_times_pos['average_speed']
             run.status = 'finished'
             run.save()
             print(run.distance, 'distance')
@@ -210,10 +209,10 @@ class PositionViewSet(viewsets.ModelViewSet):
             distance_part = geodesic((latitude, longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
 
-            speed = distance_part / seconds or 0.0
-            distance = pos_lst[-1].distance + distance_part / 1000 or 0.0
+            speed = distance_part / seconds
+            distance = pos_lst[-1].distance + distance_part / 1000
 
-            serializer.save(distance=round(distance, 2), speed=round(speed, 2))
+            serializer.save(distance=distance, speed=speed)
         else:
             serializer.save(distance=0, speed=0)
 
