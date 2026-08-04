@@ -210,10 +210,10 @@ class PositionViewSet(viewsets.ModelViewSet):
             distance_part = geodesic((latitude, longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
 
-            speed = round(distance_part / seconds, 2)
-            distance = round(pos_lst[-1].distance + distance_part / 1000, 2)
+            speed = distance_part / seconds or 0.0
+            distance = pos_lst[-1].distance + distance_part / 1000 or 0.0
 
-            serializer.save(distance=distance, speed=speed)
+            serializer.save(distance=round(distance, 2), speed=round(speed, 2))
         else:
             serializer.save(distance=0, speed=0)
 
