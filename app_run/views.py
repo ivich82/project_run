@@ -113,10 +113,12 @@ class StopAPIView(APIView):
             if max and min:
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
-
-            run.speed = run_times_pos['average_speed']
+            avg_speed = run_times_pos['average_speed'] or 0.0
+            run.speed = round(avg_speed, 2)
             run.status = 'finished'
             run.save()
+            print(run.distance, 'distance')
+            print(run.speed, 'speed')
 
             annotated_queryset = User.objects.annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished'))
@@ -124,7 +126,7 @@ class StopAPIView(APIView):
             athlete = get_object_or_404(annotated_queryset, id=run.athlete.id)
             serializer = UserSerializer(athlete)
             count_run = serializer.data.get('runs_finished')
-            # print(count_run)
+            print(count_run, 'count_run')
             if int(count_run) == 10:
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
@@ -208,8 +210,8 @@ class PositionViewSet(viewsets.ModelViewSet):
             distance_part = geodesic((latitude, longitude), (pos_lst[-1].latitude, pos_lst[-1].longitude)).meters
             seconds = (date_time - pos_lst[-1].date_time).total_seconds()
 
-            speed = distance_part / seconds
-            distance = pos_lst[-1].distance + distance_part / 1000
+            speed = round(distance_part / seconds, 2)
+            distance = round(pos_lst[-1].distance + distance_part / 1000, 2)
 
             serializer.save(distance=distance, speed=speed)
         else:
