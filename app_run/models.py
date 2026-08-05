@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Run(models.Model):
     created_at = models.DateField(auto_now_add=True)
@@ -53,3 +54,11 @@ class CollectibleItem(models.Model):
 class Subscribe(models.Model):
     athlete = models.ForeignKey(User, on_delete=models.CASCADE, related_name='athlete')
     coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name='coach')
+    rating = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ]
+    )

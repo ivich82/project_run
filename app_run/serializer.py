@@ -24,7 +24,7 @@ class RunSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
-    runs_finished = serializers.SerializerMethodField()
+    runs_finished = serializers.IntegerField()
 
     class Meta:
         model = User
@@ -33,11 +33,11 @@ class UserSerializer(serializers.ModelSerializer):
     def get_type(self, obj):
         return 'coach' if obj.is_staff else 'athlete'
 
-    def get_runs_finished(self,obj):
-        # annotated_queryset = User.objects.annotate(
-        #     runs_finished=Count('run', filter=Q(run__status='finished'))
-        # )
-        return getattr(obj, 'runs_finished', 0)
+    # def get_runs_finished(self,obj):
+    #     # annotated_queryset = User.objects.annotate(
+    #     #     runs_finished=Count('run', filter=Q(run__status='finished'))
+    #     # )
+    #     return getattr(obj, 'runs_finished', 0)
         # return annotated_queryset.get(id=obj.id).runs_finished
 
 class AthleteDetailSerializer(UserSerializer):
