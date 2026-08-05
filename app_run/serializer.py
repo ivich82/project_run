@@ -155,7 +155,7 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
-        fields = ['athlete', 'coach']
+        fields = ['athlete', 'coach', 'rating']
 
     def validate_athlete(self, value):
 

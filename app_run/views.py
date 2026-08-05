@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
+from s3transfer import subscribers
+
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer
 from django.contrib.auth.models import User
@@ -116,8 +118,8 @@ class StopAPIView(APIView):
             run.speed= run_times_pos['average_speed']
             run.status = 'finished'
             run.save()
-            print(run.distance, 'distance')
-            print(run.speed, 'speed')
+            # print(run.distance, 'distance')
+            # print(run.speed, 'speed')
 
             annotated_queryset = User.objects.annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished'))
@@ -296,3 +298,18 @@ class ChallengesAPIView(APIView):
                 ]
                 lst.append(d)
         return Response(lst)
+
+
+class Rate_coachAPIView(APIView):
+
+    def put(self, request, coach_id):
+
+        athlete_id = request.data.get('athlete')
+        rating = request.data.get('rating')
+        subscriber = get_object_or_404(Subscribe, athlete=athlete_id, coach=coach_id)
+        serializer = SubscribeSerializer(subscriber, data={'rating': rating}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # print(subscriber.rating)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
