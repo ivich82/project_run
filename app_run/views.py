@@ -312,5 +312,5 @@ class Rate_coachAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             # print(subscriber.rating)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
