@@ -25,7 +25,7 @@ class RunSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     runs_finished = serializers.IntegerField()
-    rating = serializers.IntegerField()
+    rating = serializers.FloatField()
 
     class Meta:
         model = User
