@@ -307,7 +307,8 @@ class Rate_coachAPIView(APIView):
 
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
-        # subscriber = get_object_or_404(Subscribe, athlete=athlete_id, coach=coach_id)
+        if rating == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         try:
             subscriber = Subscribe.objects.get(athlete=athlete_id, coach=coach_id)
         except Subscribe.DoesNotExist:
@@ -315,6 +316,5 @@ class Rate_coachAPIView(APIView):
         serializer = SubscribeSerializer(subscriber, data={'rating': rating}, partial=True)
         if serializer.is_valid():
             serializer.save()
-            # print(subscriber.rating)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
