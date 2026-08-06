@@ -50,7 +50,8 @@ class UserPagination(PageNumberPagination):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_superuser=False).annotate(
-                runs_finished=Count('run', filter=Q(run__status='finished')))
+                runs_finished=Count('run', filter=Q(run__status='finished')),
+                rating=Avg('coach__rating'))
     # queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
