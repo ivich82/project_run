@@ -303,7 +303,7 @@ class ChallengesAPIView(APIView):
 
 class Rate_coachAPIView(APIView):
 
-    def put(self, request, coach_id):
+    def post(self, request, coach_id):
 
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
