@@ -305,6 +305,7 @@ class Rate_coachAPIView(APIView):
 
     def post(self, request, coach_id):
 
+        coach = get_object_or_404(User, id=coach_id, is_staff=True)
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
         if rating == None:
