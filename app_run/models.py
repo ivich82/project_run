@@ -18,9 +18,9 @@ class Run(models.Model):
         default='init'
     )
 
-    distance = models.FloatField(null=True)
-    run_time_seconds = models.IntegerField(null=True)
-    speed = models.FloatField(blank=True, null=True)
+    distance = models.FloatField(blank=True, default=0)
+    run_time_seconds = models.IntegerField(blank=True, default=0)
+    speed = models.FloatField(blank=True, default=0)
 
 class AthleteInfo(models.Model):
     goals = models.TextField(blank=True, null=True)

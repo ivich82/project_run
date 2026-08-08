@@ -3,6 +3,7 @@ from wsgiref import headers
 from django.contrib.sessions import serializers
 from django.template.context_processors import request
 from django_filters.rest_framework import DjangoFilterBackend
+from geopy import distance
 from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -12,7 +13,9 @@ from rest_framework.pagination import PageNumberPagination
 from s3transfer import subscribers
 
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
-from .serializer import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer
+from .serializer import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
+                         CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer,
+                         Analytics_for_coachSerializer)
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -52,7 +55,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_superuser=False).annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished')),
                 rating=Avg('coach__rating'))
-    # queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -66,8 +68,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_staff=True)
         elif type == 'athlete':
             qs = qs.filter(is_staff=False)
-        # elif self.action == 'retrieve':
-        #     qs = User.objects.prefetch_related('collectibleitems').filter(is_superuser=False)
         return qs
 
     def get_serializer_class(self):
@@ -116,11 +116,9 @@ class StopAPIView(APIView):
             if max and min:
                 seconds = (run_times_pos['max_date_time'] - run_times_pos['min_date_time']).total_seconds()
                 run.run_time_seconds = seconds
-            run.speed= run_times_pos['average_speed']
+            run.speed = run_times_pos['average_speed']
             run.status = 'finished'
             run.save()
-            # print(run.distance, 'distance')
-            # print(run.speed, 'speed')
 
             annotated_queryset = User.objects.annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished'))
@@ -133,8 +131,6 @@ class StopAPIView(APIView):
                 object, created = Challenge.objects.update_or_create(
                     athlete=run.athlete,
                     full_name='Сделай 10 Забегов!')
-
-            # athlete = get_object_or_404(User, id=run.athlete.id)
 
             if run.distance >= 2 and run.run_time_seconds <= 10 * 60:
                 object, created = Challenge.objects.update_or_create(
@@ -319,3 +315,57 @@ class Rate_coachAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class Analytics_for_coachAPIView(APIView):
+
+    def get(self, request, coach_id):
+        coach = get_object_or_404(User, id=coach_id, is_staff=True)
+        queryset = Subscribe.objects.filter(coach=coach_id).annotate(
+                longest_run_value=Max('athlete__run__distance'),
+                total_run_value=Sum('athlete__run__distance'),
+                speed_avg_value=Max('athlete__run__speed'))
+        serializer = Analytics_for_coachSerializer(queryset, many=True)
+        print(serializer.data)
+        # print(max(serializer.data, key=lambda x: x['longest_run_value']))
+        return Response(serializer.data)
+
+
+#         d = {}
+#
+        # for obj in queryset:
+        #     serializer =
+#             id = obj.athlete_id
+#             distance = obj.longest_run_value or 0
+#             sum_distance = obj.total_run_value or 0
+#             speed = obj.speed_avg_value or 0
+#             # print(d.get('longest_run_value'))
+#             print(id, distance, sum_distance, speed)
+#             if d.get('longest_run_value')
+#                 d['longest_run_user'] = id
+#                 d['longest_run_value'] = distance
+#             else:
+#                 d['longest_run_user'] = id
+#                 d['longest_run_value'] = distance
+            # if (d.get('total_run_value', 0) or 0) < (sum_distance or 0):
+            #     d['total_run_user'] = id
+            #     d['total_run_value'] = sum_distance
+            # else:
+            #     d['total_run_user'] = id
+            #     d['total_run_value'] = sum_distance
+            # if (d.get('speed_avg_value', 0) or 0) < (speed or 0):
+            #     d['speed_avg_user'] = id
+            #     d['speed_avg_value'] = speed
+            # else:
+            #     d['speed_avg_user'] = id
+            #     d['speed_avg_value'] = speed
+        # print(queryset)
+
+        # return Response(d)
+
+# class  Analytics_for_coachViewSet(viewsets.ModelViewSet):
+#     queryset = Subscribe.objects.filter(coach=coach_id).annotate(
+#                         longest_run_value=Max('athlete__run__distance'),
+#                         total_run_value=Sum('athlete__run__distance'),
+#                         speed_avg_value=Max('athlete__run__speed'))
+#     serializer_class = Analytics_for_coachSerializer
