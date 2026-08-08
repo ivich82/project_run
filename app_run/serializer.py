@@ -170,13 +170,13 @@ class SubscribeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError()
         return value
 
-class Analytics_for_coachSerializer(serializers.ModelSerializer):
-    longest_run_value = serializers.FloatField()
-    total_run_value = serializers.FloatField()
-    speed_avg_value = serializers.FloatField()
-    class Meta:
-        model = Subscribe
-        fields = ['athlete', 'longest_run_value', 'total_run_value', 'speed_avg_value']
+# class Analytics_for_coachSerializer(serializers.ModelSerializer):
+#     longest_run_value = serializers.FloatField()
+#     total_run_value = serializers.FloatField()
+#     speed_avg_value = serializers.FloatField()
+#     class Meta:
+#         model = Subscribe
+#         fields = ['athlete', 'longest_run_value', 'total_run_value', 'speed_avg_value']
 
     # def get_longest_run_value(self, obj):
     #     return obj.is_longest_run_value if obj.is_longest_run_value != None else 0.0

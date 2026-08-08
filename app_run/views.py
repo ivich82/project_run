@@ -14,8 +14,7 @@ from s3transfer import subscribers
 
 from .models import Run, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 from .serializer import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
-                         CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer,
-                         Analytics_for_coachSerializer)
+                         CollectibleItemSerializer, SubscribeSerializer, CoachDetailSerializer, AthleteDetailSerializer)
 from django.contrib.auth.models import User
 from rest_framework.filters import  SearchFilter
 from rest_framework.views import APIView
@@ -325,25 +324,36 @@ class Analytics_for_coachAPIView(APIView):
                 longest_run_value=Max('athlete__run__distance'),
                 total_run_value=Sum('athlete__run__distance'),
                 speed_avg_value=Max('athlete__run__speed'))
-        serializer = Analytics_for_coachSerializer(queryset, many=True)
-        print(serializer.data)
-        print(
-            max(
-                filter(
-                    lambda x: x['longest_run_value'] is not None
-                              and x['total_run_value'] is not None
-                              and x['speed_avg_value'] is not None,
-                    serializer.data,
-                ),
-                key=lambda x: (
-                    x['longest_run_value'],
-                    x['total_run_value'],
-                    x['speed_avg_value'],
-                ),
-            )
+        # serializer = Analytics_for_coachSerializer(queryset, many=True)
+        qs = queryset.values("athlete", 'longest_run_value', 'total_run_value', 'speed_avg_value')
 
+        best_longest = max(
+            (x for x in qs if x.get('longest_run_value') is not None),
+            key=lambda x: x['longest_run_value'],
+            default=None
         )
-        return Response(serializer.data)
+
+        best_total = max(
+            (x for x in qs if x.get('total_run_value') is not None),
+            key=lambda x: x['total_run_value'],
+            default=None
+        )
+
+        best_speed = max(
+            (x for x in qs if x.get('speed_avg_value') is not None),
+            key=lambda x: x['speed_avg_value'],
+            default=None
+        )
+
+        return Response({
+            'longest_run_user': best_longest['athlete'],
+            'longest_run_value': best_longest['longest_run_value'],
+            'total_run_user': best_total['athlete'],
+            'total_run_value': best_total['total_run_value'],
+            'speed_avg_user': best_speed['athlete'],
+            'speed_avg_value': best_speed['speed_avg_value']
+        })
+        # return Response(serializer.data)
 
 
 #         d = {}
