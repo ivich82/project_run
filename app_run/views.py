@@ -121,7 +121,7 @@ class StopAPIView(APIView):
 
             annotated_queryset = User.objects.filter(is_superuser=False).annotate(
                 runs_finished=Count('run', filter=Q(run__status='finished')),
-                rating=Avg('coach__rating'))
+                rating=Avg('coach__rating')
             )
             athlete = get_object_or_404(annotated_queryset, id=run.athlete.id)
             serializer = UserSerializer(athlete)
