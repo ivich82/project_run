@@ -327,7 +327,22 @@ class Analytics_for_coachAPIView(APIView):
                 speed_avg_value=Max('athlete__run__speed'))
         serializer = Analytics_for_coachSerializer(queryset, many=True)
         print(serializer.data)
-        # print(max(serializer.data, key=lambda x: x['longest_run_value']))
+        print(
+            max(
+                filter(
+                    lambda x: x['longest_run_value'] is not None
+                              and x['total_run_value'] is not None
+                              and x['speed_avg_value'] is not None,
+                    serializer.data,
+                ),
+                key=lambda x: (
+                    x['longest_run_value'],
+                    x['total_run_value'],
+                    x['speed_avg_value'],
+                ),
+            )
+
+        )
         return Response(serializer.data)
 
 

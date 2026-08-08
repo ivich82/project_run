@@ -178,5 +178,5 @@ class Analytics_for_coachSerializer(serializers.ModelSerializer):
         model = Subscribe
         fields = ['athlete', 'longest_run_value', 'total_run_value', 'speed_avg_value']
 
-    def get_longest_run_value(self, obj):
-        return obj.is_longest_run_value if obj.is_longest_run_value != None else 0.0
+    # def get_longest_run_value(self, obj):
+    #     return obj.is_longest_run_value if obj.is_longest_run_value != None else 0.0
